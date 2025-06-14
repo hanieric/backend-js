@@ -1,58 +1,48 @@
-const express = require("express");
-const cors = require("cors");
-const session = require("express-session");
-const routerfront = require("./routers/front.js");
-const routermain = require("./routers/main.js");
-const dotenv = require("dotenv");
+import express, { text, json, urlencoded } from "express";
+import cors from "cors";
+import session from "express-session";
+import routerfront from "./routers/auth.js";
+import routermain from "./routers/main.js";
+import mysql from "./lib/mysql_connection.js";
+import startWebSocketServer from "./lib/websocket.js";
+
+import dotenv from "dotenv";
 dotenv.config();
+
+const { SESSION_SECRET, CORS_ORIGIN } = process.env;
 
 const app = express();
 
+startWebSocketServer(app);
+mysql.initializeDatabase();
+
 app.use(
   session({
-    secret: dotenv.SESSION_SECRET,
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
   })
 );
 
-app.use(cors());
-app.use(express.text());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: CORS_ORIGIN,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
+app.use(text());
+app.use(json());
+app.use(urlencoded({ extended: true }));
 
 app.use(routerfront);
 app.use(routermain);
 
-const { createServer } = require("http");
-const httpServer = createServer(app);
-const io = require("socket.io")(httpServer, {
-  cors: {
-    origin: dotenv.CORS_ORIGIN,
-    methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
-    credentials: true,
-  },
-});
-
-io.on("connection", (socket) => {
-  console.log("Client connected");
-
-  socket.on("message", (data) => {
-    console.log("Message from client:", data);
-    io.emit("message", data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
-});
-
-httpServer.listen(3001, () => {
-  console.log(`SERVER REALTIME DIJALANKAN DI PORT 3001`);
-});
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`SERVER DIJALANKAN DI PORT ${PORT}`);
+  console.log("=========");
+  console.log(`Server running on port ${PORT}`);
+  console.log(`CORS enabled for origin: ${CORS_ORIGIN}`);
+  console.log("=========");
 });
