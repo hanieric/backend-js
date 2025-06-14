@@ -46,9 +46,9 @@ router.post("/create/income", async (req, res) => {
     return;
   }
 
-  const { pemasukan, jumlah, date } = req.body;
+  const { tipe, keterangan, jumlah, date } = req.body;
 
-  if (!pemasukan || !jumlah || !date) {
+  if (!tipe || !keterangan || !jumlah || !date) {
     res.status(400).json({ message: "Semua field harus diisi" });
     return;
   }
@@ -60,9 +60,10 @@ router.post("/create/income", async (req, res) => {
   }
 
   await mysql_connection.INSERT("pemasukan", {
-    nama_pemasukan: pemasukan,
+    keterangan: keterangan,
     jumlah_pemasukan: parsedJumlah,
     tanggal: date,
+    tipe_pemasukan: tipe,
     user_id: userid,
   });
 
