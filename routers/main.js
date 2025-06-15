@@ -16,9 +16,9 @@ router.post("/create/expense", async (req, res) => {
     return;
   }
 
-  const { pengeluaran, jumlah, date } = req.body;
+  const { keterangan, jumlah, date } = req.body;
 
-  if (!pengeluaran || !jumlah || !date) {
+  if (!keterangan || !jumlah || !date) {
     res.status(400).json({ message: "Semua field harus diisi" });
     return;
   }
@@ -30,7 +30,7 @@ router.post("/create/expense", async (req, res) => {
   }
 
   await mysql_connection.INSERT("pengeluaran", {
-    nama_pengeluaran: pengeluaran,
+    nama_pengeluaran: keterangan,
     jumlah_pengeluaran: parsedJumlah,
     tanggal: date,
     user_id: userid,
@@ -46,9 +46,9 @@ router.post("/create/income", async (req, res) => {
     return;
   }
 
-  const { tipe, keterangan, jumlah, date } = req.body;
+  const { keterangan, jumlah, date } = req.body;
 
-  if (!tipe || !keterangan || !jumlah || !date) {
+  if (!keterangan || !jumlah || !date) {
     res.status(400).json({ message: "Semua field harus diisi" });
     return;
   }
@@ -60,10 +60,9 @@ router.post("/create/income", async (req, res) => {
   }
 
   await mysql_connection.INSERT("pemasukan", {
-    keterangan: keterangan,
+    nama_pemasukan: keterangan,
     jumlah_pemasukan: parsedJumlah,
     tanggal: date,
-    tipe_pemasukan: tipe,
     user_id: userid,
   });
 
@@ -104,8 +103,8 @@ router.delete("/delete/expense", async (req, res) => {
   }
 });
 
-router.post("/history", async (req, res) => {
-  const { userId } = req.userId;
+router.get("/history", async (req, res) => {
+  const userId = req.userId;
 
   if (!userId) {
     res.status(400).json({ message: "ID pengguna harus diisi" });
@@ -115,43 +114,34 @@ router.post("/history", async (req, res) => {
   console.log("Fetching history for userId:", userId);
 
   try {
-    const pengeluaran = await mysql_connection.SELECT("pengeluaran", {
-      columns: ["id", "nama_pengeluaran", "jumlah_pengeluaran"],
-      where: { user_id: id },
+    const expense = await mysql_connection.SELECT("pengeluaran", {
+      columns: ["id", "nama_pengeluaran", "jumlah_pengeluaran", "tanggal"],
+      where: { user_id: userId },
     });
 
-    const total = await mysql_connection.QUERY(
+    var expenseTotal = await mysql_connection.QUERY(
       "SELECT SUM(jumlah_pengeluaran) AS total_pengeluaran FROM pengeluaran WHERE user_id = ?",
-      [id]
+      [userId]
     );
 
-    const pemasukan = await mysql_connection.SELECT("pemasukan", {
-      columns: ["id", "nama_pemasukan", "jumlah_pemasukan"],
-      where: { user_id: id },
+    const income = await mysql_connection.SELECT("pemasukan", {
+      columns: ["id", "nama_pemasukan", "jumlah_pemasukan", "tanggal"],
+      where: { user_id: userId },
     });
 
-    const totalPemasukan = await mysql_connection.QUERY(
+    var incomeTotal = await mysql_connection.QUERY(
       "SELECT SUM(jumlah_pemasukan) AS total_pemasukan FROM pemasukan WHERE user_id = ?",
-      [id]
+      [userId]
     );
+
+    var expenseTotal = Number(expenseTotal[0].total_pengeluaran) || 0;
+    var incomeTotal = Number(incomeTotal[0].total_pemasukan) || 0;
 
     res.status(200).json({
-      pengeluaran: pengeluaran.map((item) => ({
-        id: item.id,
-        nama_pengeluaran: item.nama_pengeluaran,
-        jumlah_pengeluaran: item.jumlah_pengeluaran,
-        tanggal: item.tanggal,
-        type: "expense",
-      })),
-      total_pengeluaran: total[0].total_pengeluaran || 0,
-      pemasukan: pemasukan.map((item) => ({
-        id: item.id,
-        nama_pemasukan: item.nama_pemasukan,
-        jumlah_pemasukan: item.jumlah_pemasukan,
-        tanggal: item.tanggal,
-        type: "income",
-      })),
-      total_pemasukan: totalPemasukan[0].total_pemasukan || 0,
+      expense: expense,
+      expense_total: expenseTotal,
+      income: income,
+      income_total: incomeTotal,
     });
   } catch (err) {
     res.status(500).json({ message: "Ada masalah dengan hubungan ke server" });
