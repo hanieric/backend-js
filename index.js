@@ -1,8 +1,9 @@
 import express, { text, json, urlencoded } from "express";
 import cors from "cors";
 import session from "express-session";
-import routerfront from "./routers/auth.js";
-import routermain from "./routers/main.js";
+import authRouter from "./routers/auth.js";
+import mainRouter from "./routers/transaction.js";
+import chatRouter from "./routers/chat.js";
 import mysql from "./lib/mysql_connection.js";
 import startWebSocketServer from "./lib/websocket.js";
 
@@ -36,8 +37,9 @@ app.use(text());
 app.use(json());
 app.use(urlencoded({ extended: true }));
 
-app.use(routerfront);
-app.use(routermain);
+app.use(authRouter);
+app.use(mainRouter);
+app.use("/chat", chatRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

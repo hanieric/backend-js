@@ -7,8 +7,8 @@ dotenv.config();
 import mysql from "../lib/mysql_connection.js";
 
 const router = Router();
-router.get("/", (req, res) => {
-  res.send("WELCOME TO MY FINANCIAL WEB");
+router.get("/", (_, res) => {
+  res.send("Selamat datang di API HANIERICK");
 });
 
 router.post("/register", async (req, res) => {
@@ -20,12 +20,9 @@ router.post("/register", async (req, res) => {
   }
 
   try {
-    const existingUser = await mysql.SELECT(
-      "user",
-      "*",
-      ["username = ?"],
-      [username]
-    );
+    const existingUser = await mysql.SELECT("user", {
+      where: { username: username },
+    });
 
     if (existingUser.length > 0) {
       res.status(409).send("Username sudah terdaftar");
@@ -48,20 +45,16 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  console.log("Login attempt:", { username, password });
-
   if (!username || !password) {
     res.status(400).send("Wajib menyertakan username dan password");
     return;
   }
 
   try {
-    const result = await mysql.SELECT(
-      "user",
-      "*",
-      ["username = ?"],
-      [username]
-    );
+    const result = await mysql.SELECT("user", {
+      where: { username: username },
+    });
+
     if (result.length === 0) {
       res.status(401).send("Username atau password salah");
       return;
