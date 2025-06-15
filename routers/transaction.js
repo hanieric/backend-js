@@ -141,12 +141,12 @@ router.get("/history", async (req, res) => {
     res.status(200).json({
       expense: expense,
       expense_total: expense.reduce(
-        (total, item) => total + item.jumlah_pengeluaran,
+        (total, item) => total + Number(item.jumlah_pengeluaran),
         0
       ),
       income: income,
       income_total: income.reduce(
-        (total, item) => total + item.jumlah_pemasukan,
+        (total, item) => total + Number(item.jumlah_pemasukan),
         0
       ),
     });
