@@ -18,6 +18,7 @@ router.post("/create/expense", async (req, res) => {
 
   const { keterangan, jumlah, date } = req.body;
 
+  console.log(req.body);
   if (!keterangan || !jumlah || !date) {
     res.status(400).json({ message: "Semua field harus diisi" });
     return;
@@ -32,7 +33,7 @@ router.post("/create/expense", async (req, res) => {
   await mysql_connection.INSERT("pengeluaran", {
     nama_pengeluaran: keterangan,
     jumlah_pengeluaran: parsedJumlah,
-    tanggal: date,
+    tanggal: new Date(date),
     user_id: userid,
   });
 
@@ -45,8 +46,9 @@ router.post("/create/income", async (req, res) => {
     res.status(400).json({ message: "ID pengguna harus diisi" });
     return;
   }
-
   const { keterangan, jumlah, date } = req.body;
+
+  console.log(req.body);
 
   if (!keterangan || !jumlah || !date) {
     res.status(400).json({ message: "Semua field harus diisi" });
@@ -62,7 +64,7 @@ router.post("/create/income", async (req, res) => {
   await mysql_connection.INSERT("pemasukan", {
     nama_pemasukan: keterangan,
     jumlah_pemasukan: parsedJumlah,
-    tanggal: date,
+    tanggal: new Date(date),
     user_id: userid,
   });
 
