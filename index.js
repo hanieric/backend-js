@@ -5,7 +5,7 @@ import authRouter from "./routers/auth.js";
 import mainRouter from "./routers/transaction.js";
 import chatRouter from "./routers/chat.js";
 import mysql from "./lib/mysql_connection.js";
-import startWebSocketServer from "./lib/websocket.js";
+import generateHttpServer from "./lib/websocket.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -14,7 +14,6 @@ const { SESSION_SECRET, CORS_ORIGIN } = process.env;
 
 const app = express();
 
-startWebSocketServer(app);
 mysql.initializeDatabase();
 
 app.use(
@@ -41,10 +40,9 @@ app.use(authRouter);
 app.use(mainRouter);
 app.use("/chat", chatRouter);
 
+const httpServer = generateHttpServer(app);
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("=========");
-  console.log(`Server running on port ${PORT}`);
-  console.log(`CORS enabled for origin: ${CORS_ORIGIN}`);
-  console.log("=========");
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
