@@ -67,9 +67,13 @@ router.post("/login", async (req, res) => {
       return;
     }
 
-    const token = jwt.sign({ userId: dbUser.id }, process.env.JWT_SECRET, {
-      expiresIn: "6h",
-    });
+    const token = jwt.sign(
+      { userId: dbUser.id, username: dbUser.username },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "6h",
+      }
+    );
     req.session.userId = dbUser.id;
     res
       .status(200)
