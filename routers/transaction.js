@@ -24,6 +24,11 @@ router.post("/create/expense", async (req, res) => {
     return;
   }
 
+  if (jumlah.toString().length > 18) {
+    res.status(400).json({ message: "Jumlah tidak boleh lebih dari 18 digit" });
+    return;
+  }
+
   const parsedJumlah = Number(jumlah);
   if (isNaN(parsedJumlah)) {
     res.status(400).json({ message: "Jumlah harus berupa angka" });
@@ -52,6 +57,11 @@ router.post("/create/income", async (req, res) => {
 
   if (!keterangan || !jumlah || !date) {
     res.status(400).json({ message: "Semua field harus diisi" });
+    return;
+  }
+
+  if (jumlah.toString().length > 18) {
+    res.status(400).json({ message: "Jumlah tidak boleh lebih dari 18 digit" });
     return;
   }
 
