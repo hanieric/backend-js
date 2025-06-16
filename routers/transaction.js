@@ -115,6 +115,80 @@ router.delete("/delete/expense", async (req, res) => {
   }
 });
 
+router.put("/update/income", async (req, res) => {
+  const { id, keterangan, jumlah, date } = req.body;
+
+  if (!id || !keterangan || !jumlah || !date) {
+    res.status(400).json({ message: "Semua field harus diisi" });
+    return;
+  }
+
+  if (jumlah.toString().length > 18) {
+    res.status(400).json({ message: "Jumlah tidak boleh lebih dari 18 digit" });
+    return;
+  }
+
+  const parsedJumlah = Number(jumlah);
+  if (isNaN(parsedJumlah)) {
+    res.status(400).json({ message: "Jumlah harus berupa angka" });
+    return;
+  }
+
+  try {
+    await mysql_connection.UPDATE(
+      "pemasukan",
+      {
+        nama_pemasukan: keterangan,
+        jumlah_pemasukan: parsedJumlah,
+        tanggal: new Date(date),
+      },
+      { id: id }
+    );
+
+    res.status(200).json({ message: "Pemasukan berhasil diperbarui" });
+  } catch (err) {
+    res.status(500).json({ message: "Ada masalah dengan hubungan ke server" });
+    console.error(err);
+  }
+});
+
+router.put("/update/expense", async (req, res) => {
+  const { id, keterangan, jumlah, date } = req.body;
+
+  if (!id || !keterangan || !jumlah || !date) {
+    res.status(400).json({ message: "Semua field harus diisi" });
+    return;
+  }
+
+  if (jumlah.toString().length > 18) {
+    res.status(400).json({ message: "Jumlah tidak boleh lebih dari 18 digit" });
+    return;
+  }
+
+  const parsedJumlah = Number(jumlah);
+  if (isNaN(parsedJumlah)) {
+    res.status(400).json({ message: "Jumlah harus berupa angka" });
+    return;
+  }
+
+  try {
+    await mysql_connection.UPDATE(
+      "pengeluaran",
+      {
+        nama_pengeluaran: keterangan,
+        jumlah_pengeluaran: parsedJumlah,
+        tanggal: new Date(date),
+      },
+      { id: id }
+    );
+
+    res.status(200).json({ message: "Pengeluaran berhasil diperbarui" });
+  } catch (err) {
+    res.status(500).json({ message: "Ada masalah dengan hubungan ke server" });
+    console.error(err);
+  }
+});
+
 router.get("/history", async (req, res) => {
   const userId = req.userId;
 
