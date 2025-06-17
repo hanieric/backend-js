@@ -35,14 +35,20 @@ router.post("/create/expense", async (req, res) => {
     return;
   }
 
-  await mysql_connection.INSERT("pengeluaran", {
+  const insertResult = await mysql_connection.INSERT("pengeluaran", {
     nama_pengeluaran: keterangan,
     jumlah_pengeluaran: parsedJumlah,
     tanggal: new Date(date),
     user_id: userid,
   });
 
-  res.status(201).json({ message: "Pengeluaran berhasil disimpan" });
+  res.status(201).json({
+    id: insertResult.insertId,
+    nama_pengeluaran: keterangan,
+    jumlah_pengeluaran: parsedJumlah,
+    tanggal: date,
+    user_id: userid,
+  });
 });
 
 router.post("/create/income", async (req, res) => {
@@ -71,14 +77,20 @@ router.post("/create/income", async (req, res) => {
     return;
   }
 
-  await mysql_connection.INSERT("pemasukan", {
+  const insertResult = await mysql_connection.INSERT("pemasukan", {
     nama_pemasukan: keterangan,
     jumlah_pemasukan: parsedJumlah,
     tanggal: new Date(date),
     user_id: userid,
   });
 
-  res.status(201).json({ message: "Pemasukan berhasil disimpan" });
+  res.status(201).json({
+    id: insertResult.insertId,
+    nama_pemasukan: keterangan,
+    jumlah_pemasukan: parsedJumlah,
+    tanggal: date,
+    user_id: userid,
+  });
 });
 
 router.delete("/delete/income", async (req, res) => {
