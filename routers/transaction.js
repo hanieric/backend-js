@@ -18,7 +18,6 @@ router.post("/create/expense", async (req, res) => {
 
   const { keterangan, jumlah, date } = req.body;
 
-  console.log(req.body);
   if (!keterangan || !jumlah || !date) {
     res.status(400).json({ message: "Semua field harus diisi" });
     return;
@@ -58,8 +57,6 @@ router.post("/create/income", async (req, res) => {
     return;
   }
   const { keterangan, jumlah, date } = req.body;
-
-  console.log(req.body);
 
   if (!keterangan || !jumlah || !date) {
     res.status(400).json({ message: "Semua field harus diisi" });
@@ -147,15 +144,14 @@ router.put("/update/income", async (req, res) => {
   }
 
   try {
-    await mysql_connection.UPDATE(
-      "pemasukan",
-      {
+    await mysql_connection.UPDATE("pemasukan", {
+      data: {
         nama_pemasukan: keterangan,
         jumlah_pemasukan: parsedJumlah,
         tanggal: new Date(date),
       },
-      { id: id }
-    );
+      where: { id: id },
+    });
 
     res.status(200).json({ message: "Pemasukan berhasil diperbarui" });
   } catch (err) {
@@ -184,15 +180,14 @@ router.put("/update/expense", async (req, res) => {
   }
 
   try {
-    await mysql_connection.UPDATE(
-      "pengeluaran",
-      {
+    await mysql_connection.UPDATE("pengeluaran", {
+      data: {
         nama_pengeluaran: keterangan,
         jumlah_pengeluaran: parsedJumlah,
         tanggal: new Date(date),
       },
-      { id: id }
-    );
+      where: { id: id },
+    });
 
     res.status(200).json({ message: "Pengeluaran berhasil diperbarui" });
   } catch (err) {
@@ -208,8 +203,6 @@ router.get("/history", async (req, res) => {
     res.status(400).json({ message: "ID pengguna harus diisi" });
     return;
   }
-
-  console.log("Fetching history for userId:", userId);
 
   const { start_date: startDate, end_date: endDate } = req.query;
 
