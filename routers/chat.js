@@ -6,12 +6,24 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.get("/", async (_, res) => {
+router.get("/", async (req, res) => {
+  const { count, lastId } = req.query;
   try {
-    const chats = await mysql_connection.QUERY(
-      "SELECT chat.*, user.* FROM chat JOIN user ON chat.user_id = user.id ORDER BY chat.timestamp ASC"
-    );
+    let query, params;
 
+    if (lastId) {
+      // Cursor-based pagination using lastId
+      query =
+        "SELECT chat.id AS chat_id, chat.user_id, chat.message, chat.timestamp, user.id AS user_id, user.username FROM chat JOIN user ON chat.user_id = user.id WHERE chat.id < ? ORDER BY chat.timestamp DESC LIMIT ?";
+      params = [parseInt(lastId), parseInt(count) || 10];
+    } else {
+      // First page
+      query =
+        "SELECT chat.id AS chat_id, chat.user_id, chat.message, chat.timestamp, user.id AS user_id, user.username FROM chat JOIN user ON chat.user_id = user.id ORDER BY chat.timestamp DESC LIMIT ?";
+      params = [parseInt(count) || 10];
+    }
+
+    const chats = await mysql_connection.QUERY(query, params);
     res.status(200).json(chats);
   } catch (err) {
     console.error(err);
