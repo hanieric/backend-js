@@ -4,6 +4,7 @@ import session from "express-session";
 import authRouter from "./routers/auth.js";
 import mainRouter from "./routers/transaction.js";
 import chatRouter from "./routers/chat.js";
+import balanceRouter from "./routers/balance.js";
 import mysql from "./lib/mysql_connection.js";
 import generateHttpServer from "./lib/websocket.js";
 
@@ -39,6 +40,7 @@ app.use(urlencoded({ extended: true }));
 app.use(authRouter);
 app.use(mainRouter);
 app.use("/chat", chatRouter);
+app.use("/", balanceRouter);
 
 const httpServer = generateHttpServer(app);
 
