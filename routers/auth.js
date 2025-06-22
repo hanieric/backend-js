@@ -31,9 +31,18 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await hash(password, 10);
 
-    await mysql.INSERT("user", {
+    const createdUser = await mysql.INSERT("user", {
       username: username,
       password: hashedPassword,
+    });
+
+    if (!createdUser || !createdUser.insertId) {
+      res.status(500).send("Gagal menyimpan data pengguna");
+      return;
+    }
+
+    await mysql.INSERT("balance", {
+      user_id: createdUser.insertId,
     });
     res.status(201).send("Berhasil mendaftar");
   } catch (err) {

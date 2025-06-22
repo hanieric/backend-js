@@ -43,7 +43,7 @@ app.use("/chat", chatRouter);
 const httpServer = generateHttpServer(app);
 
 const PORT = process.env.PORT || 3000;
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`CORS enabled for origin: ${CORS_ORIGIN}`);
 });
