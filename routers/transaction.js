@@ -89,9 +89,8 @@ router.post("/create/:type", async (req, res) => {
   }
 });
 
-router.delete("/delete/:type", async (req, res) => {
-  const { type } = req.params;
-  const { id } = req.body;
+router.delete("/delete/:type/:id", async (req, res) => {
+  const { type, id } = req.params;
 
   if (!id) {
     res.status(400).json({
