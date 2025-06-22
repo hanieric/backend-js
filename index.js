@@ -40,7 +40,7 @@ app.use(urlencoded({ extended: true }));
 app.use(authRouter);
 app.use(mainRouter);
 app.use("/chat", chatRouter);
-app.use("/", balanceRouter);
+app.use("/balance", balanceRouter);
 
 const httpServer = generateHttpServer(app);
 
