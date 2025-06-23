@@ -193,10 +193,6 @@ router.put("/update/:type", async (req, res) => {
   const nameField = `nama_${tableName}`;
   const amountField = `jumlah_${tableName}`;
   const balanceField = `total_${tableName}`;
-  const message =
-    type === "income"
-      ? "Pemasukan berhasil diperbarui"
-      : "Pengeluaran berhasil diperbarui";
 
   try {
     let existingRecord = await mysql_connection.SELECT(tableName, {
@@ -296,8 +292,29 @@ router.put("/update/:type", async (req, res) => {
       where: { user_id: req.userId },
     });
 
-    await Promise.all([updatePromise, updateBalancePromise]);
-    res.status(200).json({ message: message });
+    const response = await Promise.all([updatePromise, updateBalancePromise]);
+
+    console.log(response);
+
+    const updatedRecordId = response[0].insertId || id;
+
+    console.log("Updated Record ID:", updatedRecordId);
+    console.log("New Table Name:", newTableName);
+
+    const updatedRecord = await mysql_connection.SELECT(tableName, {
+      columns: ["id", nameField, amountField, "tanggal"],
+      where: { id: updatedRecordId },
+    });
+
+    console.log("Updated Record:", updatedRecord);
+
+    res.status(200).json({
+      id: updatedRecord[0].id,
+      [nameField]: updatedRecord[0][nameField],
+      [amountField]: updatedRecord[0][amountField],
+      tanggal: updatedRecord[0].tanggal,
+      user_id: req.userId,
+    });
   } catch (err) {
     res.status(500).json({ message: "Ada masalah dengan hubungan ke server" });
     console.error(err);
