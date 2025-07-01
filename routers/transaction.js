@@ -360,7 +360,7 @@ router.get("/history", async (req, res) => {
   if (endDate) {
     whereConditions.tanggal = {
       ...whereConditions.tanggal,
-      $lt: new Date(endDate),
+      $lte: new Date(endDate),
     };
   }
 
